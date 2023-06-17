@@ -1,10 +1,22 @@
+#!/bin/python
+import os
+import sys
 from openpyxl import load_workbook #used to import the Excel Data
 from datetime import datetime #used to work with date times
 #used for merge tags. If there is an error, uninstall and install docx-mailmerge
 from mailmerge import MailMerge
 
+if len(sys.argv) < 2:
+    print("You need to pass a parameter")
+    sys.exit()
+
+print(sys.argv[1])
 # Setting up Excel sheet variables
-wb = load_workbook('SampleData.xlsx') #open excel workbook
+if os.path.isfile(sys.argv[1]):
+    wb = load_workbook(sys.argv[1]) #open excel workbook
+else:
+    print("file not exist!")
+#wb = load_workbook('SampleData2.xlsx') #open excel workbook
 sheet = wb['SalesOrders'] #Tab to get information
 max_row = sheet.max_row #count of all of the rows
 
@@ -33,10 +45,15 @@ for rep in unique_rep_list:
             #formating date
             #unformatted datetime as a string
             raw_date_time = sheet.cell(row = cell_row, column = 1).value
+            #raw_date_time_obj=datetime.strptime(raw_date_time, '%m/%d/%Y')
+            #print(type(raw_date_time))
 
             #converts datetime back into formatted string
-            clean_date_time = raw_date_time.strftime("%m/%d/%Y")
-
+            if raw_date_time != None:
+                clean_date_time = raw_date_time.strftime("%m/%d/%Y")
+            else:
+                clean_date_time = None
+                
             #Formatting subtotals
             raw_subtotal = sheet.cell(row = cell_row, column = 7).value
             #appending raw number for the total calculation
@@ -57,7 +74,7 @@ for rep in unique_rep_list:
 
             #Appending dicts to merge as a table
             sales_history_list.append(product_dict)
-
+            print(sales_history_list)
     # summing raw numbers into a total
     total = sum(raw_subtotal_list)
 
